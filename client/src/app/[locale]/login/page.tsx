@@ -44,7 +44,11 @@ export default function LoginPage() {
     const token = response.message.jwt
     const role = response.message.roles
     console.log(role)
-    setCookie('authToken', token)
+    setCookie('authToken', token, {
+      sameSite: 'none',
+      domain: 'localhost',
+      path: '/'
+    })
     setCookie('role', role)
     console.log(t('login_successful'))
     dispatch(successPopUp(t('login_successful')))

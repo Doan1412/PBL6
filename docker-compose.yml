@@ -1,0 +1,50 @@
+services:
+  proxy:
+    image: traefik:v2.11
+    command: --providers.docker
+    ports:
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  db:
+    image: mysql:8.0
+    environment: 
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: pbl6
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    image: doanhuyen/pbl6-frontend:latest
+    depends_on:
+      - backend
+    labels:
+      traefik.http.routers.client.rule: Host(`localhost`)
+      traefik.http.services.client.loadbalancer.server.port: 5173
+
+  backend:
+    image: doanhuyen/pbl6-backend:latest
+    environment:
+      DATABASE_HOST: db
+      DATABASE_USER: root
+      DATABASE_PASSWORD: password
+      DATABASE_NAME: pbl6
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    labels:
+      traefik.http.routers.backend.rule: Host(`localhost`) && PathPrefix(`/api`)
+      traefik.http.services.backend.loadbalancer.server.port: 3000
+
+volumes:
+  mysql_data:
