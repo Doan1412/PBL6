@@ -15,4 +15,7 @@ export interface Teacher {
   name?: string
   courses?: Course[]
   account?: resEmail
+  course_count?: number
+  student_count?: number
+  follower_count?: number
 }

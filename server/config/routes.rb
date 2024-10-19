@@ -42,6 +42,7 @@ Rails.application.routes.draw do
 
     namespace :admin do
       resources :users, only: %i(index)
+      resources :teachers, only: %i(index destroy)
       resources :courses, only: %i(index destroy)
       resources :accounts do
         patch :update_status, on: :member
@@ -53,9 +54,13 @@ Rails.application.routes.draw do
       end
     end
 
-    namespace :teacher do
+    namespace :instructor do
       resources :request_courses, only: %i(create)
       resources :courses, only: %i(index destroy)
+      resource :teachers do
+        get 'profile', to: 'teachers#profile'
+        patch 'update_profile', to: 'teachers#update'
+      end
     end
   end
 end
